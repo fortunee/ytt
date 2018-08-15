@@ -7,8 +7,8 @@ const axios = Axios.create({
 });
 
 export class YoutubeService {
-  getTrendingVideos() {
-    var params = {
+  getTrendingVideos () {
+    const params = {
       part: 'snippet',
       chart: 'mostPopular',
       regionCode: 'US', // should be replaced with country code from countryList
@@ -16,18 +16,20 @@ export class YoutubeService {
       key: config.youtubeApi.key
     };
 
-    var result = [];
+    let result = [];
 
-    return axios.get('/', {params}).then(function(res){
+    return axios.get('/', {params}).then(async function(res){
       result = res.data.items;
-      for (var i = 0; i < result.length; i++) {
+      for (let i = 0; i < result.length; i++) {
+        const statistics = await YoutubeService.getVideoDetails(result[i]);
         result[i] = {
           id: result[i].id,
           title: result[i].snippet.title,
           thumbnail: result[i].snippet.thumbnails.high.url,
-          publishedAt: moment(result[i].snippet.publishedAt).fromNow()
+          publishedAt: moment(result[i].snippet.publishedAt).fromNow(),
+          viewCount: statistics.viewCount,
+          likeCount: statistics.likeCount,
         };
-        result[i] = YoutubeService.getVideoDetails(result[i]);
       }
 
       return result;
@@ -36,14 +38,14 @@ export class YoutubeService {
   }
 
   static getVideoDetails(video) {
-    var params = {
+    const params = {
       part: 'statistics',
       id: video.id,
       key: config.youtubeApi.key
     };
 
     return axios.get('/', {params}).then(function(res) {
-      var result = res.data;
+      const result = res.data;
       video.viewCount = result['items'][0].statistics.viewCount;
       video.likeCount = result['items'][0].statistics.likeCount;
 
