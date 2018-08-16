@@ -4,4 +4,9 @@ div(id='page-header')
       img(class='logo', src='/images/logo.svg')
 
     div(class='col-md-6 hidden-md-down note')
-      span Here should be implemented dropdown country select
+      select(id='country-list')
+        each country in countryList
+          if (selectedCountry === country.code)
+            option(value=country.code selected) #{country.name}
+          else
+            option(value=country.code) #{country.name}
